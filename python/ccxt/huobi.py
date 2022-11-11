@@ -1702,13 +1702,42 @@ class huobi(Exchange):
         #         askSize:  0.4156
         #     }
         #
+        # bbo spot
+        #
+        #     {
+        #         "seqId": 137005210233,
+        #         "ask": 52665.02,
+        #         "askSize": 1.502181,
+        #         "bid": 52665.01,
+        #         "bidSize": 0.178567,
+        #         "quoteTime": 1630994555539,
+        #         "symbol": "btcusdt"
+        #     }
+        #
+        # bbo futures/swaps
+        #
+        #     {
+        #         "mrid": 50997449846,
+        #         "id": 1603876157,
+        #         "bid": [13684.5, 10615],
+        #         "ask": [13684.6, 3440],
+        #         "ts": 1603876157421,
+        #         "version": 50997449846,
+        #         "ch": "market.BTC-USD.bbo"
+        #     }
+        #
+
         marketId = self.safe_string_2(ticker, 'symbol', 'contract_code')
         symbol = self.safe_symbol(marketId, market)
-        timestamp = self.safe_integer(ticker, 'ts')
+        timestamp = self.safe_integer_2(ticker, 'ts', 'quoteTime')
         bid = None
         bidVolume = None
         ask = None
         askVolume = None
+        open = None
+        close = None
+        baseVolume = None
+        quoteVolume = None
         if 'bid' in ticker:
             if isinstance(ticker['bid'], list):
                 bid = self.safe_string(ticker['bid'], 0)
@@ -1723,10 +1752,14 @@ class huobi(Exchange):
             else:
                 ask = self.safe_string(ticker, 'ask')
                 askVolume = self.safe_string(ticker, 'askSize')
-        open = self.safe_string(ticker, 'open')
-        close = self.safe_string(ticker, 'close')
-        baseVolume = self.safe_string(ticker, 'amount')
-        quoteVolume = self.safe_string(ticker, 'vol')
+        if 'open' in ticker:
+            open = self.safe_string(ticker, 'open')
+        if 'close' in ticker:
+            close = self.safe_string(ticker, 'close')
+        if 'amount' in ticker:
+            baseVolume = self.safe_string(ticker, 'amount')
+        if 'vol' in ticker:
+            quoteVolume = self.safe_string(ticker, 'vol')
         return self.safe_ticker({
             'symbol': symbol,
             'timestamp': timestamp,

@@ -97,6 +97,7 @@ class huobi(Exchange, ccxt.async_support.huobi):
                 'ws': {
                     'gunzip': True,
                 },
+                'use_bbo': False
             },
             'exceptions': {
                 'ws': {
@@ -127,7 +128,8 @@ class huobi(Exchange, ccxt.async_support.huobi):
         await self.load_markets()
         market = self.market(symbol)
         symbol = market['symbol']
-        messageHash = 'market.' + market['id'] + '.detail'
+        method = ('.bbo' if self.options['use_bbo'] else '.detail')
+        messageHash = 'market.' + market['id'] + method
         url = self.get_url_by_market_type(market['type'], market['linear'])
         return await self.subscribe_public(url, symbol, messageHash, None, params)
 
@@ -1475,6 +1477,7 @@ class huobi(Exchange, ccxt.async_support.huobi):
                 'depth': self.handle_order_book,
                 'mbp': self.handle_order_book,
                 'detail': self.handle_ticker,
+                'bbo': self.handle_ticker,
                 'trade': self.handle_trades,
                 'kline': self.handle_ohlcv,
             }
