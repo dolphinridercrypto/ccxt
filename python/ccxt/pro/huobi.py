@@ -130,7 +130,6 @@ class huobi(Exchange, ccxt.async_support.huobi):
         symbol = market['symbol']
         method = ('.bbo' if self.options['use_bbo'] else '.detail')
         messageHash = 'market.' + market['id'] + method
-        print(f"Huobi message hash: {messageHash=}")
         url = self.get_url_by_market_type(market['type'], market['linear'])
         return await self.subscribe_public(url, symbol, messageHash, None, params)
 
