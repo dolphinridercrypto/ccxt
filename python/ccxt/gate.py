@@ -1949,6 +1949,7 @@ class gate(Exchange):
         if quoteVolume == 'nan':
             quoteVolume = '0'
         percentage = self.safe_string(ticker, 'change_percentage')
+        print("I have reached here!")
         return self.safe_ticker({
             'symbol': symbol,
             'timestamp': timestamp,
