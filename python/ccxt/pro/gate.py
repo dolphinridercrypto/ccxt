@@ -370,7 +370,6 @@ class gate(Exchange, ccxt.async_support.gate):
         for i in range(0, len(result)):
             ticker = result[i]
             parsed = self.parse_ticker(ticker)
-            print(f"{parsed=}")
             symbol = parsed['symbol']
             self.tickers[symbol] = parsed
             messageHash = channel + '.' + symbol
@@ -1040,7 +1039,6 @@ class gate(Exchange, ccxt.async_support.gate):
             'balances': self.handle_balance_message,
         }
         method = self.safe_value(v4Methods, channelType)
-        print(f"Gate channelType is {channelType}")
         if method is not None:
             method(client, message)
 

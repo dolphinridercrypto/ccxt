@@ -1932,9 +1932,9 @@ class gate(Exchange):
         #   }
         #
 
-        print("Start of parse_ticker!")
         marketId = self.safe_string_2(ticker, 'currency_pair', 'contract')
-        symbol = self.safe_symbol(marketId, market)
+        marketId_2 = self.safe_string(ticker, 's')
+        symbol = self.safe_symbol(marketId, marketId_2)
         last = self.safe_string(ticker, 'last')
         ask = self.safe_string_2(ticker, 'lowest_ask', 'a')
         askVolume = self.safe_string(ticker, 'A')
@@ -1950,8 +1950,7 @@ class gate(Exchange):
         if quoteVolume == 'nan':
             quoteVolume = '0'
         percentage = self.safe_string(ticker, 'change_percentage')
-        print("I have reached here!")
-        test_ticker = self.safe_ticker({
+        return self.safe_ticker({
             'symbol': symbol,
             'timestamp': timestamp,
             'datetime': None,
@@ -1973,8 +1972,6 @@ class gate(Exchange):
             'quoteVolume': quoteVolume,
             'info': ticker,
         }, market)
-        print(f"{test_ticker=}")
-        return test_ticker
 
     def fetch_tickers(self, symbols=None, params={}):
         """
