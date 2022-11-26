@@ -1951,7 +1951,7 @@ class gate(Exchange):
             quoteVolume = '0'
         percentage = self.safe_string(ticker, 'change_percentage')
         print("I have reached here!")
-        return self.safe_ticker({
+        test_ticker = self.safe_ticker({
             'symbol': symbol,
             'timestamp': timestamp,
             'datetime': None,
@@ -1973,6 +1973,8 @@ class gate(Exchange):
             'quoteVolume': quoteVolume,
             'info': ticker,
         }, market)
+        print(f"{test_ticker=}")
+        return test_ticker
 
     def fetch_tickers(self, symbols=None, params={}):
         """
