@@ -370,9 +370,7 @@ class gate(Exchange, ccxt.async_support.gate):
         for i in range(0, len(result)):
             ticker = result[i]
             parsed = self.parse_ticker(ticker)
-            print(f"{parsed=}")
             symbol = parsed['symbol']
-            print(f"{symbol=}")
             self.tickers[symbol] = parsed
             messageHash = channel + '.' + symbol
             client.resolve(self.tickers[symbol], messageHash)
