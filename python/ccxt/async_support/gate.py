@@ -1934,7 +1934,7 @@ class gate(Exchange):
 
         print("START OF PARSE_TICKER")
         marketId_1 = self.safe_string_2(ticker, 'currency_pair', 'contract')
-        marketId_2 = self.safe_string_2(ticker, 's')
+        marketId_2 = self.safe_string(ticker, 's')
         symbol_1 = self.safe_symbol(marketId, market)
         symbol_2 = self.safe_symbol(marketId_2, market)
         symbol = market
