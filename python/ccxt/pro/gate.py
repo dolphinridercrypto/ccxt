@@ -68,6 +68,7 @@ class gate(Exchange, ccxt.async_support.gate):
                     'settle': 'usdt',  # or btc
                     'spot': 'spot.balances',  # spot.margin_balances, spot.funding_balances or spot.cross_balances
                 },
+                'typeTicker': 'tickers'  # or book_ticker 
             },
             'exceptions': {
                 'ws': {
@@ -337,7 +338,7 @@ class gate(Exchange, ccxt.async_support.gate):
         marketId = market['id']
         type = market['type']
         messageType = self.get_uniform_type(type)
-        channel = messageType + '.' + 'tickers'
+        channel = messageType + '.' + self.options['typeTicker']
         messageHash = channel + '.' + market['symbol']
         payload = [marketId]
         url = self.get_url_by_market_type(type, market['inverse'])
@@ -1032,6 +1033,7 @@ class gate(Exchange, ccxt.async_support.gate):
             'candlesticks': self.handle_ohlcv,
             'orders': self.handle_order,
             'tickers': self.handle_ticker,
+            'book_ticker': self.handle_ticker,
             'trades': self.handle_trades,
             'order_book_update': self.handle_order_book,
             'balances': self.handle_balance_message,
