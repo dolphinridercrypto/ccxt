@@ -36,8 +36,8 @@ class binance(Exchange, ccxt.async_support.binance):
                 },
                 'api': {
                     'ws': {
-                        'spot': 'wss://stream.binance.com:9443/ws',
-                        'margin': 'wss://stream.binance.com:9443/ws',
+                        'spot': 'wss://data-stream.binance.com:9443/ws',
+                        'margin': 'wss://data-stream.binance.com:9443/ws',
                         'future': 'wss://fstream.binance.com/ws',
                         'delivery': 'wss://dstream.binance.com/ws',
                     },
@@ -650,6 +650,10 @@ class binance(Exchange, ccxt.async_support.binance):
         subscribe = {
             'id': requestId,
         }
+        print(f"{url=}")
+        print(f"{messageHash=}")
+        print(f"{request=}")
+        print(f"{query=}")
         return await self.watch(url, messageHash, self.extend(request, query), messageHash, subscribe)
 
     def handle_ticker(self, client, message):
