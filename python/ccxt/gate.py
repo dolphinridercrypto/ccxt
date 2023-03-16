@@ -2040,17 +2040,6 @@ class gate(Exchange):
         #         "index_price": "6531"
         #     }
         #
-        # bookTicker
-        #    {
-        #        t: 1671363004228,
-        #        u: 9793320464,
-        #        s: 'BTC_USDT',
-        #        b: '16716.8',  # best bid price
-        #        B: '0.0134',  # best bid size
-        #        a: '16716.9',  # best ask price
-        #        A: '0.0353'  # best ask size
-        #     }
-        #
         # BOOK_TICKER
         #
         #   {

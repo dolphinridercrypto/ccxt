@@ -71,8 +71,7 @@ class gate(ccxt.async_support.gate):
                 'watchBalance': {
                     'settle': 'usdt',  # or btc
                     'spot': 'spot.balances',  # spot.margin_balances, spot.funding_balances or spot.cross_balances
-                },
-                'typeTicker': 'tickers'  # or book_ticker 
+                }
             },
             'exceptions': {
                 'ws': {
