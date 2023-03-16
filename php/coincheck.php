@@ -256,6 +256,7 @@ class coincheck extends Exchange {
             'symbol' => $symbol,
             'price' => $price,
             'stopPrice' => null,
+            'triggerPrice' => null,
             'cost' => null,
             'fee' => null,
             'info' => $order,
@@ -578,10 +579,10 @@ class coincheck extends Exchange {
         }
         $response = $this->privatePostExchangeOrders (array_merge($request, $params));
         $id = $this->safe_string($response, 'id');
-        return array(
-            'info' => $response,
+        return $this->safe_order(array(
             'id' => $id,
-        );
+            'info' => $response,
+        ), $market);
     }
 
     public function cancel_order($id, $symbol = null, $params = array ()) {

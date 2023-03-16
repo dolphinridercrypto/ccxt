@@ -861,6 +861,7 @@ class coinmate extends Exchange {
             'side' => $side,
             'price' => $priceString,
             'stopPrice' => $stopPrice,
+            'triggerPrice' => $stopPrice,
             'amount' => $amountString,
             'cost' => null,
             'average' => $averageString,
@@ -905,10 +906,10 @@ class coinmate extends Exchange {
             }
             $response = Async\await($this->$method (array_merge($request, $params)));
             $id = $this->safe_string($response, 'data');
-            return array(
+            return $this->safe_order(array(
                 'info' => $response,
                 'id' => $id,
-            );
+            ), $market);
         }) ();
     }
 

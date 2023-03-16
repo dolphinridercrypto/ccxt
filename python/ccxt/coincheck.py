@@ -5,8 +5,8 @@
 
 from ccxt.base.exchange import Exchange
 from ccxt.base.errors import ExchangeError
-from ccxt.base.errors import AuthenticationError
 from ccxt.base.errors import BadSymbol
+from ccxt.base.errors import AuthenticationError
 from ccxt.base.decimal_to_precision import TICK_SIZE
 
 
@@ -251,6 +251,7 @@ class coincheck(Exchange):
             'symbol': symbol,
             'price': price,
             'stopPrice': None,
+            'triggerPrice': None,
             'cost': None,
             'fee': None,
             'info': order,
@@ -558,10 +559,10 @@ class coincheck(Exchange):
             request['amount'] = amount
         response = self.privatePostExchangeOrders(self.extend(request, params))
         id = self.safe_string(response, 'id')
-        return {
-            'info': response,
+        return self.safe_order({
             'id': id,
-        }
+            'info': response,
+        }, market)
 
     def cancel_order(self, id, symbol=None, params={}):
         """

@@ -49,7 +49,7 @@ class bitstamp1(Exchange):
                 'fetchMarkOHLCV': False,
                 'fetchMyTrades': True,
                 'fetchOpenInterestHistory': False,
-                'fetchOrder': None,
+                'fetchOrder': False,
                 'fetchOrderBook': True,
                 'fetchPosition': False,
                 'fetchPositionMode': False,
@@ -297,10 +297,10 @@ class bitstamp1(Exchange):
         }
         response = getattr(self, method)(self.extend(request, params))
         id = self.safe_string(response, 'id')
-        return {
+        return self.safe_order({
             'info': response,
             'id': id,
-        }
+        })
 
     def cancel_order(self, id, symbol=None, params={}):
         """

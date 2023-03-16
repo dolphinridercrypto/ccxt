@@ -135,6 +135,12 @@ class bitflyer(Exchange):
         month = self.safe_string(months, monthName)
         return self.parse8601(year + '-' + month + '-' + day + 'T00:00:00Z')
 
+    def safe_market(self, marketId=None, market=None, delimiter=None, marketType=None):
+        # Bitflyer has a different type of conflict in markets, because
+        # some of their ids(ETH/BTC and BTC/JPY) are duplicated in US, EU and JP.
+        # Since they're the same we just need to return one
+        return super(bitflyer, self).safe_market(marketId, market, delimiter, 'spot')
+
     def fetch_markets(self, params={}):
         """
         retrieves data on all markets for bitflyer
@@ -502,10 +508,10 @@ class bitflyer(Exchange):
         result = self.privatePostSendchildorder(self.extend(request, params))
         # {"status": - 200, "error_message": "Insufficient funds", "data": null}
         id = self.safe_string(result, 'child_order_acceptance_id')
-        return {
-            'info': result,
+        return self.safe_order({
             'id': id,
-        }
+            'info': result,
+        })
 
     def cancel_order(self, id, symbol=None, params={}):
         """
@@ -569,6 +575,7 @@ class bitflyer(Exchange):
             'side': side,
             'price': price,
             'stopPrice': None,
+            'triggerPrice': None,
             'cost': None,
             'amount': amount,
             'filled': filled,
