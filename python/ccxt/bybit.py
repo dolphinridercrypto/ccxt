@@ -1330,7 +1330,7 @@ class bybit(Exchange):
         markets = self.array_concat(markets, linearMarkets)
         return self.array_concat(markets, inverseMarkets)
 
-    def fetch_spot_markets(self, params):
+    def fetch_spot_markets(self, params={}):
         request = {
             'category': 'spot',
         }
@@ -1436,16 +1436,18 @@ class bybit(Exchange):
             })
         return result
 
-    def fetch_derivatives_markets(self, params):
-        params['limit'] = 1000  # minimize number of requests
-        response = self.publicGetV5MarketInstrumentsInfo(params)
+    def fetch_derivatives_markets(self, params={}):
+        request = {
+            'limit': 1000   # minimize number of requests
+        }
+        response = self.publicGetV5MarketInstrumentsInfo(self.extend(request, params))
         data = self.safe_value(response, 'result', {})
         markets = self.safe_value(data, 'list', [])
         paginationCursor = self.safe_string(data, 'nextPageCursor')
         if paginationCursor is not None:
             while(paginationCursor is not None):
-                params['cursor'] = paginationCursor
-                response = self.publicGetDerivativesV3PublicInstrumentsInfo(params)
+                request['cursor'] = paginationCursor
+                response = self.publicGetDerivativesV3PublicInstrumentsInfo(self.extend(request, params))
                 data = self.safe_value(response, 'result', {})
                 rawMarkets = self.safe_value(data, 'list', [])
                 rawMarketsLength = len(rawMarkets)
