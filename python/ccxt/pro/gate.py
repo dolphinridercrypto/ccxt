@@ -260,7 +260,7 @@ class gate(ccxt.async_support.gate):
         marketId = market['id']
         url = self.get_url_by_market(market)
         messageType = self.get_type_by_market(market)
-        topic, query = self.handle_option_and_params(params, 'watchTicker', 'method', 'tickers')
+        topic, query = self.handle_option_and_params(params, 'watchTicker', 'name', 'tickers')
         channel = messageType + '.' + topic
         messageHash = 'ticker:' + symbol
         payload = [marketId]
@@ -280,7 +280,7 @@ class gate(ccxt.async_support.gate):
         market = self.market(symbols[0])
         messageType = self.get_type_by_market(market)
         marketIds = self.market_ids(symbols)
-        topic, query = self.handle_option_and_params(params, 'watchTicker', 'method', 'tickers')
+        topic, query = self.handle_option_and_params(params, 'watchTicker', 'name', 'tickers')
         channel = messageType + '.' + topic
         messageHash = 'tickers'
         url = self.get_url_by_market(market)
