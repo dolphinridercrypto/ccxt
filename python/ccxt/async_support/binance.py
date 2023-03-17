@@ -1786,13 +1786,13 @@ class binance(Exchange):
         for i in range(0, len(fetchMarkets)):
             marketType = fetchMarkets[i]
             if marketType == 'spot':
-                promises.append(self.publicGetExchangeInfo(params))
+                promises.append(self.publicGetExchangeInfo({}))
             elif marketType == 'linear':
-                promises.append(self.fapiPublicGetExchangeInfo(params))
+                promises.append(self.fapiPublicGetExchangeInfo({}))
             elif marketType == 'inverse':
-                promises.append(self.dapiPublicGetExchangeInfo(params))
+                promises.append(self.dapiPublicGetExchangeInfo({}))
             elif marketType == 'option':
-                promises.append(self.eapiPublicGetExchangeInfo(params))
+                promises.append(self.eapiPublicGetExchangeInfo({}))
             else:
                 raise ExchangeError(self.id + ' fetchMarkets() self.options fetchMarkets "' + marketType + '" is not a supported market type')
         promises = await asyncio.gather(*promises)
