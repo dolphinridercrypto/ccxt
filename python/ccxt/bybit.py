@@ -2900,12 +2900,16 @@ class bybit(Exchange):
                 # use self endpoint only we have no other choice
                 # because it requires transfer permission
                 method = 'privateGetAssetV3PrivateTransferAccountCoinsBalanceQuery'
+                request['accountType'] = unifiedType
             else:
                 if enableUnifiedAccount:
                     method = 'privateGetV5AccountWalletBalance'
+                    request['accountType'] = unifiedType
+                elif enableUnifiedMargin:
+                    method = 'privateGetUnifiedV3PrivateAccountWalletBalance'
                 else:
                     method = 'privateGetContractV3PrivateAccountWalletBalance'
-            request['accountType'] = unifiedType
+                    request['accountType'] = unifiedType
         response = getattr(self, method)(self.extend(request, params))
         #
         # spot wallet
@@ -3360,6 +3364,8 @@ class bybit(Exchange):
                     quoteAmount = Precise.string_mul(amountString, priceString)
                     amount = cost if (cost is not None) else self.parse_number(quoteAmount)
                     request['qty'] = self.cost_to_precision(symbol, amount)
+            else:
+                request['qty'] = self.cost_to_precision(symbol, amount)
         else:
             request['qty'] = self.amount_to_precision(symbol, amount)
         isMarket = lowerCaseType == 'market'
@@ -3452,6 +3458,8 @@ class bybit(Exchange):
                     quoteAmount = Precise.string_mul(amountString, priceString)
                     amount = cost if (cost is not None) else self.parse_number(quoteAmount)
                     request['orderQty'] = self.cost_to_precision(symbol, amount)
+            else:
+                request['orderQty'] = self.cost_to_precision(symbol, amount)
         else:
             request['orderQty'] = self.amount_to_precision(symbol, amount)
         if (upperCaseType == 'LIMIT') or (upperCaseType == 'LIMIT_MAKER'):
@@ -3819,18 +3827,28 @@ class bybit(Exchange):
             request['category'] = 'option'
         if price is not None:
             request['price'] = self.price_to_precision(symbol, price)
-        triggerPrice = self.safe_value_2(params, 'stopPrice', 'triggerPrice')
-        stopLossPrice = self.safe_value(params, 'stopLossPrice')
-        isStopLossOrder = stopLossPrice is not None
-        takeProfitPrice = self.safe_value(params, 'takeProfitPrice')
-        isTakeProfitOrder = takeProfitPrice is not None
-        if isStopLossOrder:
-            request['stopLoss'] = self.price_to_precision(symbol, stopLossPrice)
-        if isTakeProfitOrder:
-            request['takeProfit'] = self.price_to_precision(symbol, takeProfitPrice)
+        triggerPrice = self.safe_number_2(params, 'triggerPrice', 'stopPrice')
+        stopLossTriggerPrice = self.safe_number(params, 'stopLossPrice')
+        takeProfitTriggerPrice = self.safe_number(params, 'takeProfitPrice')
+        stopLoss = self.safe_number(params, 'stopLoss')
+        takeProfit = self.safe_number(params, 'takeProfit')
+        isStopLossTriggerOrder = stopLossTriggerPrice is not None
+        isTakeProfitTriggerOrder = takeProfitTriggerPrice is not None
+        isStopLoss = stopLoss is not None
+        isTakeProfit = takeProfit is not None
+        if isStopLossTriggerOrder or isTakeProfitTriggerOrder:
+            triggerPrice = stopLossTriggerPrice if isStopLossTriggerOrder else takeProfitTriggerPrice
         if triggerPrice is not None:
             request['triggerPrice'] = self.price_to_precision(symbol, triggerPrice)
-        params = self.omit(params, ['stopPrice', 'triggerPrice', 'stopLossPrice', 'takeProfitPrice'])
+        if isStopLoss or isTakeProfit:
+            if isStopLoss:
+                request['stopLoss'] = self.price_to_precision(symbol, stopLoss)
+            if isTakeProfit:
+                request['takeProfit'] = self.price_to_precision(symbol, takeProfit)
+        clientOrderId = self.safe_string(params, 'clientOrderId')
+        if clientOrderId is not None:
+            request['orderLinkId'] = clientOrderId
+        params = self.omit(params, ['stopPrice', 'stopLossPrice', 'takeProfitPrice', 'triggerPrice', 'clientOrderId', 'stopLoss', 'takeProfit'])
         response = self.privatePostV5OrderAmend(self.extend(request, params))
         #
         #     {
@@ -3893,22 +3911,28 @@ class bybit(Exchange):
             request['timeInForce'] = 'FillOrKill'
         elif timeInForce == 'ioc':
             request['timeInForce'] = 'ImmediateOrCancel'
-        triggerPrice = self.safe_value_2(params, 'stopPrice', 'triggerPrice')
-        stopLossPrice = self.safe_value(params, 'stopLossPrice')
-        isStopLossOrder = stopLossPrice is not None
-        takeProfitPrice = self.safe_value(params, 'takeProfitPrice')
-        isTakeProfitOrder = takeProfitPrice is not None
-        if isStopLossOrder:
-            request['stopLoss'] = self.price_to_precision(symbol, stopLossPrice)
-        if isTakeProfitOrder:
-            request['takeProfit'] = self.price_to_precision(symbol, takeProfitPrice)
+        triggerPrice = self.safe_number_2(params, 'triggerPrice', 'stopPrice')
+        stopLossTriggerPrice = self.safe_number(params, 'stopLossPrice')
+        takeProfitTriggerPrice = self.safe_number(params, 'takeProfitPrice')
+        stopLoss = self.safe_number(params, 'stopLoss')
+        takeProfit = self.safe_number(params, 'takeProfit')
+        isStopLossTriggerOrder = stopLossTriggerPrice is not None
+        isTakeProfitTriggerOrder = takeProfitTriggerPrice is not None
+        isStopLoss = stopLoss is not None
+        isTakeProfit = takeProfit is not None
+        if isStopLossTriggerOrder or isTakeProfitTriggerOrder:
+            triggerPrice = stopLossTriggerPrice if isStopLossTriggerOrder else takeProfitTriggerPrice
         if triggerPrice is not None:
-            request['triggerBy'] = 'LastPrice'
             request['triggerPrice'] = self.price_to_precision(symbol, triggerPrice)
+        if isStopLoss or isTakeProfit:
+            if isStopLoss:
+                request['stopLoss'] = self.price_to_precision(symbol, stopLoss)
+            if isTakeProfit:
+                request['takeProfit'] = self.price_to_precision(symbol, takeProfit)
         clientOrderId = self.safe_string(params, 'clientOrderId')
         if clientOrderId is not None:
             request['orderLinkId'] = clientOrderId
-        params = self.omit(params, ['stopPrice', 'timeInForce', 'triggerPrice', 'stopLossPrice', 'takeProfitPrice', 'postOnly', 'clientOrderId'])
+        params = self.omit(params, ['stopPrice', 'timeInForce', 'triggerPrice', 'stopLossPrice', 'takeProfitPrice', 'postOnly', 'clientOrderId', 'stopLoss', 'takeProfit'])
         response = self.privatePostUnifiedV3PrivateOrderReplace(self.extend(request, params))
         #
         #     {
@@ -3930,21 +3954,38 @@ class bybit(Exchange):
             'symbol': market['id'],
             'orderId': id,
             'qty': self.amount_to_precision(symbol, amount),
+            # 'orderLinkId': '',  # User customised order id. Either orderId or orderLinkId is required
+            # 'triggerPrice': '',  # Trigger price. Don't pass it if not modify the qty
+            # 'takeProfit': '',  # Take profit price after modification. Don't pass it if not modify the take profit
+            # 'stopLoss': '',  # Stop loss price after modification. Don't pass it if not modify the Stop loss
+            # 'tpTriggerBy': '',  # The price type to trigger take profit. When set a take profit, self param is required if no initial value for the order
+            # 'slTriggerBy': '',  # The price type to trigger stop loss. When set a stop loss, self param is required if no initial value for the order
+            # 'triggerBy': '',  # Trigger price type. LastPrice, IndexPrice, MarkPrice, LastPrice
         }
         if price is not None:
             request['price'] = self.price_to_precision(symbol, price)
-        triggerPrice = self.safe_value_2(params, 'stopPrice', 'triggerPrice')
-        stopLossPrice = self.safe_value(params, 'stopLossPrice')
-        isStopLossOrder = stopLossPrice is not None
-        takeProfitPrice = self.safe_value(params, 'takeProfitPrice')
-        isTakeProfitOrder = takeProfitPrice is not None
-        if isStopLossOrder:
-            request['stopLoss'] = self.price_to_precision(symbol, stopLossPrice)
-        if isTakeProfitOrder:
-            request['takeProfit'] = self.price_to_precision(symbol, takeProfitPrice)
+        triggerPrice = self.safe_number_2(params, 'triggerPrice', 'stopPrice')
+        stopLossTriggerPrice = self.safe_number(params, 'stopLossPrice')
+        takeProfitTriggerPrice = self.safe_number(params, 'takeProfitPrice')
+        stopLoss = self.safe_number(params, 'stopLoss')
+        takeProfit = self.safe_number(params, 'takeProfit')
+        isStopLossTriggerOrder = stopLossTriggerPrice is not None
+        isTakeProfitTriggerOrder = takeProfitTriggerPrice is not None
+        isStopLoss = stopLoss is not None
+        isTakeProfit = takeProfit is not None
+        if isStopLossTriggerOrder or isTakeProfitTriggerOrder:
+            triggerPrice = stopLossTriggerPrice if isStopLossTriggerOrder else takeProfitTriggerPrice
         if triggerPrice is not None:
             request['triggerPrice'] = self.price_to_precision(symbol, triggerPrice)
-        params = self.omit(params, ['stopPrice', 'triggerPrice', 'stopLossPrice', 'takeProfitPrice'])
+        if isStopLoss or isTakeProfit:
+            if isStopLoss:
+                request['stopLoss'] = self.price_to_precision(symbol, stopLoss)
+            if isTakeProfit:
+                request['takeProfit'] = self.price_to_precision(symbol, takeProfit)
+        clientOrderId = self.safe_string(params, 'clientOrderId')
+        if clientOrderId is not None:
+            request['orderLinkId'] = clientOrderId
+        params = self.omit(params, ['stopPrice', 'stopLossPrice', 'takeProfitPrice', 'triggerPrice', 'clientOrderId', 'stopLoss', 'takeProfit'])
         response = self.privatePostContractV3PrivateOrderReplace(self.extend(request, params))
         #
         # contract v3

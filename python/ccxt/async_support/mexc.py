@@ -179,6 +179,7 @@ class mexc(Exchange):
                             'capital/withdraw/history': 1,
                             'capital/deposit/address': 1,
                             'capital/transfer': 1,
+                            'capital/transfer/tranId': 1,
                             'capital/sub-account/universalTransfer': 1,
                             'capital/convert': 1,
                             'capital/convert/list': 1,
@@ -3283,7 +3284,7 @@ class mexc(Exchange):
                 raise ArgumentsRequired(self.id + ' setLeverage() requires a positionId parameter or a symbol argument with openType and positionType parameters, use openType 1 or 2 for isolated or cross margin respectively, use positionType 1 or 2 for long or short positions')
             else:
                 request['openType'] = openType
-                request['symbol'] = market['symbol']
+                request['symbol'] = market['id']
                 request['positionType'] = positionType
         else:
             request['positionId'] = positionId
